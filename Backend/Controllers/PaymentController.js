@@ -22,6 +22,7 @@ const getAllPayments = async (req, res, next) => {
 // Add a new payment
 const addPayment = async (req, res, next) => {
     const {
+        paymentId,
         studentId,
         studentName,
         email,
@@ -34,6 +35,7 @@ const addPayment = async (req, res, next) => {
         courseName,
         paymentDescription,
         transactionId,
+        receiptNumber,
         paymentPeriod,
         discountApplied,
         taxAmount,
@@ -41,15 +43,17 @@ const addPayment = async (req, res, next) => {
         createdBy
     } = req.body;
 
-    // Generate a unique payment ID
-    const paymentId = `PAY-${uuidv4().substring(0, 8).toUpperCase()}`;
-    const receiptNumber = `RCPT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+    // Generate a unique payment ID only if one is not provided
+    const finalPaymentId = paymentId || `PAY-${uuidv4().substring(0, 8).toUpperCase()}`;
+    
+    // Generate receipt number if not provided
+    const finalReceiptNumber = receiptNumber || `RCPT-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
 
     let payment;
 
     try {
         payment = new Payment({
-            paymentId,
+            paymentId: finalPaymentId,
             studentId,
             studentName,
             email,
@@ -63,7 +67,7 @@ const addPayment = async (req, res, next) => {
             courseName,
             paymentDescription,
             transactionId,
-            receiptNumber,
+            receiptNumber: finalReceiptNumber,
             paymentPeriod,
             discountApplied: discountApplied || 0,
             taxAmount: taxAmount || 0,

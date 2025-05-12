@@ -1,4 +1,6 @@
 const Instructor = require("../Model/InstructorModel")
+const User = require("../Model/UserModel")
+const EnrolledCourse = require("../Model/EnrolledCourse")
 
 const getAllInstructors = async (req,res,next) => {
    
@@ -102,9 +104,54 @@ const deleteInstructor = async(req,res,next) => {
     return res.status(200).json({instructor});
 }
 
+const getInstructorStudents = async(req, res, next) => {
+    const instructorId = req.params.instructorId;
+    
+    try {
+        const instructor = await Instructor.findById(instructorId);
+        
+        if (!instructor) {
+            return res.status(404).json({ message: "Instructor not found" });
+        }
+        
+        const enrolledCourses = await EnrolledCourse.find({ instructorId: instructorId });
+        
+        if (!enrolledCourses || enrolledCourses.length === 0) {
+            return res.status(200).json([]);
+        }
+        
+        const studentIds = enrolledCourses.map(course => course.userId);
+        
+        const students = await User.find({ 
+            _id: { $in: studentIds },
+            role: 'student'
+        });
+        
+        const studentsWithDetails = students.map(student => {
+            const studentCourse = enrolledCourses.find(course => 
+                course.userId.toString() === student._id.toString()
+            );
+            
+            return {
+                _id: student._id,
+                name: student.name,
+                email: student.email,
+                phone: student.phone,
+                course: studentCourse ? studentCourse.courseName : null,
+                progress: studentCourse ? studentCourse.progress : 0
+            };
+        });
+        
+        return res.status(200).json(studentsWithDetails);
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ message: "Error fetching instructor's students", error: err.message });
+    }
+}
 
 exports.getAllInstructors = getAllInstructors;
 exports.addInstructors = addInstructors;
 exports.getInstructorbyId = getInstructorbyId;
 exports.updateInstructor = updateInstructor;
 exports.deleteInstructor = deleteInstructor;
+exports.getInstructorStudents = getInstructorStudents;

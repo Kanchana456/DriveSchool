@@ -8,5 +8,6 @@ router.post("/",InstructorController.addInstructors);
 router.get("/:id",InstructorController.getInstructorbyId);
 router.put("/:id",InstructorController.updateInstructor);
 router.delete("/:id",InstructorController.deleteInstructor);
+router.get("/:instructorId/students", InstructorController.getInstructorStudents);
 
 module.exports = router;

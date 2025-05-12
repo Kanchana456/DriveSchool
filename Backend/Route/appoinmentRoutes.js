@@ -1,35 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const mongoose = require('mongoose');
-
-// Define appointment schema
-const appointmentSchema = new mongoose.Schema({
-    studentId: {
-        type: String,
-        required: true
-    },
-    instructorId: {
-        type: String,
-        required: true
-    },
-    date: {
-        type: Date,
-        required: true
-    },
-    time: {
-        type: String,
-        required: true
-    },
-    status: {
-        type: String,
-        enum: ['pending', 'confirmed', 'cancelled'],
-        default: 'pending'
-    }
-}, {
-    timestamps: true
-});
-
-const Appointment = mongoose.model('Appointment', appointmentSchema);
+const Appointment = require('../Model/AddAppointmentsModel');
 
 // Get all appointments
 router.get('/', async (req, res) => {
